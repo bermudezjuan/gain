@@ -1,59 +1,140 @@
 ﻿namespace core.Services.Base
 {
+    using Context;
+    using Dto;
     using Microsoft.EntityFrameworkCore;
     using Models;
 
-    public class BaseService<T> : IBaseService<T> where T : BaseEntity
+    public class BaseService<T>(GainDbContext context) : IBaseService<T> where T : BaseEntity
     {
-        private readonly DbContext _context;
-        private readonly DbSet<T> _dbSet;
+        private readonly DbSet<T> _dbSet = context.Set<T>();
 
-        public BaseService(DbContext context, DbSet<T> dbSet)
+        #region READ
+
+        public async Task<ResponseDto<List<T>>> GetAllAsync(string includeProperties = null!)
         {
-            _context = context;
-            _dbSet = dbSet;
+            try
+            {
+                var query = _dbSet.AsNoTracking();
+                query = ApplyIncludes(query, includeProperties);
+                var results = await query.ToListAsync();
+                return ResponseDto<List<T>>.Ok(results, "");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<List<T>>.Failure("Error al obtener todas las entidades: " + e.Message);
+            }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(string? includeProperties = null)
+        public async Task<ResponseDto<T>> GetByIdAsync(int id, string? includeProperties = null)
         {
-            IQueryable<T> query = _dbSet;
-            if (includeProperties == null)
-                return await query.ToListAsync();
-            query = includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries)
-                .Aggregate(query, (current, includeProp) => current.Include(includeProp.Trim()));
-
-            return await query.ToListAsync();
+            try
+            {
+                var query = _dbSet.AsNoTracking();
+                query = ApplyIncludes(query, includeProperties);
+                var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
+                return entity != null 
+                    ? ResponseDto<T>.Ok(entity, null!) 
+                    : ResponseDto<T>.Failure($"Entidad con ID {id} no encontrada.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<T>.Failure("Error al obtener la entidad por ID: " + e.Message);
+            }
         }
 
-        public async Task<T> GetByIdAsync(int id, string? includeProperties = null)
-        {
-            IQueryable<T> query = _dbSet;
+  #endregion
 
-            if (includeProperties == null)
-                return (await _dbSet.FindAsync(id))!;
-            query = includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries).Aggregate(query, (current, includeProp) => current.Include(includeProp.Trim()));
-            return (await query.FirstOrDefaultAsync(e => e.Id == id))!;
+        #region CREATE
+
+        public async Task<ResponseDto<T>> AddAsync(T entity)
+        {
+            try
+            {
+                await _dbSet.AddAsync(entity);
+                var result = await SaveChangesAsync();
+                return result > 0 
+                    ? ResponseDto<T>.Ok(entity, null!) 
+                    : ResponseDto<T>.Failure("No se guardaron los datos. Consulte al administrador.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<T>.Failure("Error al agregar la entidad: " + e.Message);
+            }
         }
 
-        public async Task AddAsync(T entity)
+  #endregion
+
+        #region UPDATE
+
+        public async Task<ResponseDto<T>> Update(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            try
+            {
+                _dbSet.Attach(entity);
+                context.Entry(entity).State = EntityState.Modified;
+                
+                var result = await SaveChangesAsync();
+                
+                return result > 0 
+                    ? ResponseDto<T>.Ok(entity, null!) 
+                    : ResponseDto<T>.Failure("No se pudo actualizar la entidad.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<T>.Failure("Error al actualizar la entidad: " + e.Message);
+            }
         }
 
-        public void Update(T entity)
+  #endregion
+
+        #region DELETE
+
+        public async Task<ResponseDto<T>> Delete(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            try
+            {
+                _dbSet.Remove(entity);
+                var result = await SaveChangesAsync();
+                return result > 0 
+                    ? ResponseDto<T>.Ok(entity, null!) 
+                    : ResponseDto<T>.Failure("No se pudo eliminar la entidad.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<T>.Failure("Error al eliminar la entidad: " + e.Message);
+            
+            }
         }
 
-        public void Delete(T entity)
-        {
-            _dbSet.Remove(entity);
-        }
+  #endregion
 
         public Task<int> SaveChangesAsync()
         {
-            return _context.SaveChangesAsync();
+            try
+            {
+                return context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        
+        private static IQueryable<T> ApplyIncludes(IQueryable<T> query, string? includeProperties)
+        {
+            if (string.IsNullOrWhiteSpace(includeProperties))
+                return query;
+
+            return includeProperties
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProp) => current.Include(includeProp.Trim()));
         }
     }
 }
