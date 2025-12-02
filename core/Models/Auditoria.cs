@@ -4,7 +4,7 @@
     {
         public string Titulo { get; set; } = null!;
         public DateTime FechaInicio { get; set; }
-        public string FechaFin { get; set; } = null!;
+        public DateTime FechaFin { get; set; }
         public string Area { get; set; } = null!;
         public Estado Estado { get; set; }
         public int? ResponsableId { get; set; }
@@ -13,8 +13,8 @@
     }
     
     public enum Estado {
-        Pendiente,
-        EnProceso,
-        Finalizada
+        Pendiente = 1,
+        EnProceso = 2,
+        Finalizada = 3
     }
 }

@@ -16,7 +16,17 @@
             };
         }
     
-        public static ResponseDto<T> Failure(string message)
+        public static ResponseDto<object> Failure(string? message, object? result)
+        {
+            return new ResponseDto<object>
+            {
+                Success = false,
+                Message = message,
+                Result = result 
+            };
+        }
+        
+        public static ResponseDto<T> Failure(string? message)
         {
             return new ResponseDto<T>
             {

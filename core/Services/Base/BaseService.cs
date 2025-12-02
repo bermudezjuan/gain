@@ -7,7 +7,7 @@
 
     public class BaseService<T>(GainDbContext context) : IBaseService<T> where T : BaseEntity
     {
-        private readonly DbSet<T> _dbSet = context.Set<T>();
+        protected readonly DbSet<T> _dbSet = context.Set<T>();
 
         #region READ
 
@@ -74,13 +74,19 @@
         {
             try
             {
-                _dbSet.Attach(entity);
-                context.Entry(entity).State = EntityState.Modified;
+                var existingEntity = await _dbSet.FindAsync(entity.Id);
+                if (existingEntity == null)
+                {
+                    return ResponseDto<T>.Failure("Entidad no encontrada");
+                }
                 
+                context.Entry(existingEntity).CurrentValues.SetValues(entity);
+                existingEntity.FechaActualizacion = DateTime.UtcNow;
+                context.Entry(existingEntity).State = EntityState.Modified;
                 var result = await SaveChangesAsync();
                 
                 return result > 0 
-                    ? ResponseDto<T>.Ok(entity, null!) 
+                    ? ResponseDto<T>.Ok(existingEntity, null!) 
                     : ResponseDto<T>.Failure("No se pudo actualizar la entidad.");
             }
             catch (Exception e)
@@ -94,10 +100,12 @@
 
         #region DELETE
 
-        public async Task<ResponseDto<T>> Delete(T entity)
+        public async Task<ResponseDto<T>> Delete(int id)
         {
             try
             {
+                var entity = await _dbSet.FindAsync(id);
+                if (entity == null) return ResponseDto<T>.Failure($"Entidad con ID {id} no encontrada.");
                 _dbSet.Remove(entity);
                 var result = await SaveChangesAsync();
                 return result > 0 
