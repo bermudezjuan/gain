@@ -81,7 +81,7 @@ Arquitectura de Capas y Tecnología BaseLa solución se estructura alrededor de 
 
 ## Acceso a Datos/Dominio core (Clases, Interfaces, EF Core) Contiene las Entidades de Dominio (Auditoria, Responsable), el DbContext, las interfaces de servicio y la lógica de acceso a datos (servicios genéricos).
 
-##Persistencia Entity Framework Core (EF Core) Es el ORM (Mapeador Objeto-Relacional) que gestiona la conexión a SQL Server, la creación del esquema (Code First a través de Migraciones) y las consultas LINQ.
+## Persistencia Entity Framework Core (EF Core) Es el ORM (Mapeador Objeto-Relacional) que gestiona la conexión a SQL Server, la creación del esquema (Code First a través de Migraciones) y las consultas LINQ.
 
 # Componentes Clave y Patrones Utilizados
 ##  Manejo de Datos y Patrones Genéricos
