@@ -5,13 +5,23 @@
     using core.Models;
     using core.Services.Auditoria;
     using core.Services.Base;
+    using core.Services.Hallazgo;
     using Filters;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
     [Route("api/hallazgo")]
-    public class HallazgosController(IBaseService<Hallazgo> baseService, IAuditoriaService _auditoriaService, IMapper _mapper) : ControllerBase
+    public class HallazgosController(IBaseService<Hallazgo> baseService, IAuditoriaService _auditoriaService, IHallazgoService _hallazgoService, IMapper _mapper) : ControllerBase
     {
+        [HttpGet("Search")]
+        public async Task<IActionResult> Search([FromQuery] int auditoriaId, [FromQuery] Severidad severidad)
+        {
+            var result = await _hallazgoService.SearchHallazgos(auditoriaId, severidad);
+            if (result.Success)
+                return Ok(result);
+            return BadRequest(result);
+        }
+        
         [HttpPost("Add")]
         [ServiceFilter(typeof(ValidationFilter<HallazgoDto>))]
         public async Task<IActionResult> Add(HallazgoDto model)
@@ -39,7 +49,15 @@
                 false => BadRequest(result),
                 true => Ok(result)
             };
-
+        }
+        
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _hallazgoService.DeleteHallazgo(id);
+            if (result.Success)
+                return Ok(result);
+            return BadRequest(result);
         }
     }
 }

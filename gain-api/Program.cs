@@ -1,6 +1,7 @@
 using core.Context;
 using core.Services.Auditoria;
 using core.Services.Base;
+using core.Services.Hallazgo;
 using core.Services.Responsable;
 using FluentValidation;
 using gain_api.Filters;
@@ -29,8 +30,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = 
         System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-});;
+});
 builder.Services.AddScoped(typeof(IBaseService<>),  typeof(BaseService<>));
+builder.Services.AddScoped<IHallazgoService, HallazgoService>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<IResponsableService, ResponsableService>();
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -44,7 +46,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 #endregion
-
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

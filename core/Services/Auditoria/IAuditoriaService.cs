@@ -11,5 +11,6 @@
         Task<ResponseDto<Auditoria>> SetResponsable(SetResponsableAuditoriaDto model);
         Task<ResponseDto<List<Auditoria>>> GetAuditoriasByResponsable(int id);
         Task<ResponseDto<Auditoria>> SetHallazgo(SetHallazgoAuditoriaDto model);
+        Task<IEnumerable<AuditoriaReporteView>> GetResumenViewAsync();
     }
 }

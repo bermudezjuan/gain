@@ -11,7 +11,7 @@
 
         #region READ
 
-        public async Task<ResponseDto<List<T>>> GetAllAsync(string includeProperties = null!)
+        public async Task<ResponseDto<List<T>>> GetAllAsync(string? includeProperties = null)
         {
             try
             {
@@ -35,7 +35,7 @@
                 query = ApplyIncludes(query, includeProperties);
                 var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
                 return entity != null 
-                    ? ResponseDto<T>.Ok(entity, null!) 
+                    ? ResponseDto<T>.Ok(entity, "") 
                     : ResponseDto<T>.Failure($"Entidad con ID {id} no encontrada.");
             }
             catch (Exception e)
@@ -45,7 +45,7 @@
             }
         }
 
-  #endregion
+        #endregion
 
         #region CREATE
 
@@ -56,7 +56,7 @@
                 await _dbSet.AddAsync(entity);
                 var result = await SaveChangesAsync();
                 return result > 0 
-                    ? ResponseDto<T>.Ok(entity, null!) 
+                    ? ResponseDto<T>.Ok(entity, "") 
                     : ResponseDto<T>.Failure("No se guardaron los datos. Consulte al administrador.");
             }
             catch (Exception e)
@@ -66,7 +66,7 @@
             }
         }
 
-  #endregion
+        #endregion
 
         #region UPDATE
 
@@ -86,7 +86,7 @@
                 var result = await SaveChangesAsync();
                 
                 return result > 0 
-                    ? ResponseDto<T>.Ok(existingEntity, null!) 
+                    ? ResponseDto<T>.Ok(existingEntity, "") 
                     : ResponseDto<T>.Failure("No se pudo actualizar la entidad.");
             }
             catch (Exception e)
@@ -96,7 +96,7 @@
             }
         }
 
-  #endregion
+        #endregion
 
         #region DELETE
 
@@ -109,7 +109,7 @@
                 _dbSet.Remove(entity);
                 var result = await SaveChangesAsync();
                 return result > 0 
-                    ? ResponseDto<T>.Ok(entity, null!) 
+                    ? ResponseDto<T>.Ok(entity, "") 
                     : ResponseDto<T>.Failure("No se pudo eliminar la entidad.");
             }
             catch (Exception e)
@@ -120,9 +120,9 @@
             }
         }
 
-  #endregion
+        #endregion
 
-        public Task<int> SaveChangesAsync()
+        protected Task<int> SaveChangesAsync()
         {
             try
             {

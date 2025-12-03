@@ -11,9 +11,13 @@
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<Hallazgo> Hallazgos { get; set; }
         public DbSet<Responsable> Responsables { get; set; }
+        public DbSet<AuditoriaReporteView> AuditoriaReporteViews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AuditoriaReporteView>()
+                .HasNoKey()
+                .ToView("VW_AuditoriaReporte");
             base.OnModelCreating(modelBuilder);
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {

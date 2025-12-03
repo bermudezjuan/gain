@@ -12,22 +12,26 @@
         
         public async Task<ResponseDto<Responsable>> UpdateResponsable(Responsable entity)
         {
-            var existingEntity = await _dbSet.FindAsync(entity.Id);
+            try
+            {
+                var existingEntity = await _dbSet.FindAsync(entity.Id);
 
-            if (existingEntity == null )
-                return ResponseDto<Responsable>.Failure("No se puede actualizar la entidad, ");
-            _context.Entry(existingEntity).CurrentValues.SetValues(entity);
-            existingEntity.FechaActualizacion = DateTime.UtcNow;
-            _context.Entry(existingEntity).State = EntityState.Modified;
-            var result = await SaveChangesAsync();
+                if (existingEntity == null )
+                    return ResponseDto<Responsable>.Failure("No se puede actualizar la entidad, ");
+                _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+                existingEntity.FechaActualizacion = DateTime.UtcNow;
+                _context.Entry(existingEntity).State = EntityState.Modified;
+                var result = await SaveChangesAsync();
                 
-            return result > 0 
-                ? ResponseDto<Responsable>.Ok(existingEntity, null!) 
-                : ResponseDto<Responsable>.Failure("No se pudo actualizar la entidad.");
+                return result > 0 
+                    ? ResponseDto<Responsable>.Ok(existingEntity, "") 
+                    : ResponseDto<Responsable>.Failure("No se pudo actualizar la entidad.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ResponseDto<Responsable>.Failure("No se pudo actualizar la entidad.");
+            }
         }
-        
-        
-
-
     }
 }

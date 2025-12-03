@@ -40,6 +40,13 @@
             return BadRequest(result);
         }
         
+        [HttpGet("ReporteVista")]
+        public async Task<IActionResult> GetResumenVista()
+        {
+            var data = await _auditoriaService.GetResumenViewAsync();
+            return Ok(data);
+        }
+        
         [HttpPost("Add")]
         [ServiceFilter(typeof(ValidationFilter<AuditoriaDto>))]
         public async Task<IActionResult> Add(AuditoriaDto model)
