@@ -77,13 +77,14 @@ https://localhost:<PORT>/swagger (Ej: https://localhost:7001/swagger)
 # Descripcion de la solución:
 
 Arquitectura de Capas y Tecnología BaseLa solución se estructura alrededor de una arquitectura de capas, separando claramente la presentación/interfaz (API) de la lógica de negocio y el acceso a datos.
-Capa Proyecto/Tecnología Rol Principal
-Presentación/API gain-api (ASP.NET Core Web API)Maneja las solicitudes HTTP (enrutamiento, Model Binding), inyección de dependencias y serialización JSON. Utiliza Swagger/OpenAPI para la documentación y prueba de endpoints.
-Acceso a Datos/Dominio core (Clases, Interfaces, EF Core) Contiene las Entidades de Dominio (Auditoria, Responsable), el DbContext, las interfaces de servicio y la lógica de acceso a datos (servicios genéricos).
-Persistencia Entity Framework Core (EF Core) Es el ORM (Mapeador Objeto-Relacional) que gestiona la conexión a SQL Server, la creación del esquema (Code First a través de Migraciones) y las consultas LINQ.
+## Presentación/API gain-api (ASP.NET Core Web API)Maneja las solicitudes HTTP (enrutamiento, Model Binding), inyección de dependencias y serialización JSON. Utiliza Swagger/OpenAPI para la documentación y prueba de endpoints.
+
+## Acceso a Datos/Dominio core (Clases, Interfaces, EF Core) Contiene las Entidades de Dominio (Auditoria, Responsable), el DbContext, las interfaces de servicio y la lógica de acceso a datos (servicios genéricos).
+
+##Persistencia Entity Framework Core (EF Core) Es el ORM (Mapeador Objeto-Relacional) que gestiona la conexión a SQL Server, la creación del esquema (Code First a través de Migraciones) y las consultas LINQ.
 
 # Componentes Clave y Patrones Utilizados
-## 1. Manejo de Datos y Patrones Genéricos
+##  Manejo de Datos y Patrones Genéricos
 Servicio Genérico (IBaseService<T> / BaseService<T>): Se implementa un patrón de Repositorio o Servicio base genérico, restringido por la entidad base (BaseEntity), para centralizar las operaciones CRUD básicas y reutilizarlas en todas las entidades (DRY - Don't Repeat Yourself).
 
 Servicio Especializado (IAuditoriaService): Implementa la interfaz genérica y añade lógica de negocio específica para Auditoria, como la búsqueda por múltiples parámetros y la asignación de hallazgos/responsables. Esto adhiere al Principio de Segregación de Interfaces (ISP).
